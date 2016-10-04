@@ -37,7 +37,7 @@ import android.widget.TextView;
 import java.util.HashSet;
 import java.util.Set;
 
-import ru.sash0k.bluetooth_terminal.R;
+import ru.sash0k.uprsp_test.R;
 
 
 /**

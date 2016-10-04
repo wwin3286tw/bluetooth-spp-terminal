@@ -7,6 +7,8 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
 
+import ru.sash0k.uprsp_test.BuildConfig;
+
 /**
  * Вспомогательные методы
  * Created by sash0k on 29.01.14.

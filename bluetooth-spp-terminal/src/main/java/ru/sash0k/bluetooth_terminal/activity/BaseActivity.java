@@ -6,7 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 
-import ru.sash0k.bluetooth_terminal.R;
+import ru.sash0k.uprsp_test.R;
 import ru.sash0k.bluetooth_terminal.Utils;
 
 /**

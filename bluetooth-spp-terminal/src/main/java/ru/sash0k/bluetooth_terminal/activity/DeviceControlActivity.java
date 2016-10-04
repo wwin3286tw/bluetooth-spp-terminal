@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ru.sash0k.bluetooth_terminal.DeviceData;
-import ru.sash0k.bluetooth_terminal.R;
+import ru.sash0k.uprsp_test.R;
 import ru.sash0k.bluetooth_terminal.Utils;
 import ru.sash0k.bluetooth_terminal.bluetooth.DeviceConnector;
 import ru.sash0k.bluetooth_terminal.bluetooth.DeviceListActivity;

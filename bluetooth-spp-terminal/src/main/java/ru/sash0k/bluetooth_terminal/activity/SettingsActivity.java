@@ -9,7 +9,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
-import ru.sash0k.bluetooth_terminal.R;
+import ru.sash0k.uprsp_test.R;
 
 /**
  * Created by sash0k on 29.11.13.
