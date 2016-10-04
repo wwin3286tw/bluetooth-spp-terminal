@@ -19,7 +19,7 @@
     <string name="none_paired">Нет известных устройств</string>
     <string name="none_found">Не найдено</string>
     <string name="command_hint">Введите команду</string>
-    <string name="button_send">Отправить</string>
+    <string name="button_send">Старт</string>
 
     <!-- Настройки -->
     <string name="log_settings_category">История команд:</string>
@@ -40,4 +40,5 @@
 
     <string name="need_clean">Очищать предыдущую команду</string>
     <string name="need_clean_summary">Удалять команду из поля ввода после отправки</string>
+    <string name="button_stop">Стоп</string>
 </resources>

@@ -44,13 +44,15 @@ public final class DeviceControlActivity extends BaseActivity {
     private static BluetoothResponseHandler mHandler;
 
     private TextView logTextView;
-    private EditText commandEditText;
 
     // Настройки приложения
     private boolean hexMode, checkSum, needClean;
     private boolean show_timings, show_direction;
     private String command_ending;
     private String deviceName;
+
+    private final static String COMMAND = "#05";
+    private boolean runFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,36 +73,11 @@ public final class DeviceControlActivity extends BaseActivity {
 
         this.logTextView = (TextView) findViewById(R.id.log_textview);
         this.logTextView.setMovementMethod(new ScrollingMovementMethod());
-        if (savedInstanceState != null)
+        if (savedInstanceState != null) {
             logTextView.setText(savedInstanceState.getString(LOG));
+            runFlag = savedInstanceState.getBoolean(COMMAND);
+        }
 
-        this.commandEditText = (EditText) findViewById(R.id.command_edittext);
-        // soft-keyboard send button
-        this.commandEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
-                    sendCommand(null);
-                    return true;
-                }
-                return false;
-            }
-        });
-        // hardware Enter button
-        this.commandEditText.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (keyCode) {
-                        case KeyEvent.KEYCODE_ENTER:
-                            sendCommand(null);
-                            return true;
-                        default:
-                            break;
-                    }
-                }
-                return false;
-            }
-        });
     }
     // ==========================================================================
 
@@ -112,6 +89,7 @@ public final class DeviceControlActivity extends BaseActivity {
             final String log = logTextView.getText().toString();
             outState.putString(LOG, log);
         }
+        outState.putBoolean(COMMAND, runFlag);
     }
     // ============================================================================
 
@@ -202,11 +180,6 @@ public final class DeviceControlActivity extends BaseActivity {
                 }
                 return true;
 
-            case R.id.menu_settings:
-                final Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -220,14 +193,6 @@ public final class DeviceControlActivity extends BaseActivity {
 
         // hex mode
         final String mode = Utils.getPrefence(this, getString(R.string.pref_commands_mode));
-        this.hexMode = "HEX".equals(mode);
-        if (hexMode) {
-            commandEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
-            commandEditText.setFilters(new InputFilter[]{new Utils.InputFilterHex()});
-        } else {
-            commandEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-            commandEditText.setFilters(new InputFilter[]{});
-        }
 
         // checksum
         final String checkSum = Utils.getPrefence(this, getString(R.string.pref_checksum_mode));
@@ -235,7 +200,7 @@ public final class DeviceControlActivity extends BaseActivity {
 
         // Окончание строки
         this.command_ending = getEnding(R.string.pref_commands_ending);
-        if (connector != null) connector.setEnding(getEnding(R.string.pref_answer_ending));
+        //if (connector != null) connector.setEnding(getEnding(R.string.pref_answer_ending));
 
         // Формат отображения лога команд
         this.show_timings = Utils.getBooleanPrefence(this, getString(R.string.pref_log_timing));
@@ -299,37 +264,38 @@ public final class DeviceControlActivity extends BaseActivity {
     }
     // ==========================================================================
 
+    protected void send() {
+        if (!runFlag) return;
+
+        String commandString = COMMAND;
+
+        int crc = 0;
+        for (int i = 0; i< commandString.length(); i++) {
+            crc += (int)commandString.charAt(i);
+        }
+        commandString += Integer.toHexString(Utils.mod(crc, 256));
+        commandString += '\r';
+
+        byte[] command = commandString.getBytes();
+        if (isConnected()) {
+            connector.write(command);
+            appendLog(commandString, hexMode, true, needClean);
+        }
+    }
+    // ==========================================================================
 
     /**
      * Отправка команды устройству
      */
     public void sendCommand(View view) {
-        if (commandEditText != null) {
-            String commandString = commandEditText.getText().toString();
-            if (commandString.isEmpty()) return;
+        appendLog("START", false, true, false);
+        runFlag = true;
+        send();
+    }
 
-            // Дополнение команд в hex
-            if (hexMode && (commandString.length() % 2 == 1)) {
-                commandString = "0" + commandString;
-                commandEditText.setText(commandString);
-            }
-
-            // checksum
-            if (checkSum) {
-                int crc = 0;
-                for (int i = 0; i< commandString.length(); i++) {
-                    crc += (int)commandString.charAt(i);
-                }
-                commandString += Integer.toHexString(Utils.mod(crc, 256));
-            }
-
-            byte[] command = (hexMode ? Utils.toHex(commandString) : commandString.getBytes());
-            if (command_ending != null) command = Utils.concat(command, command_ending.getBytes());
-            if (isConnected()) {
-                connector.write(command);
-                appendLog(commandString, hexMode, true, needClean);
-            }
-        }
+    public void stopSendCommand(View view) {
+        appendLog("STOP", false, true, false);
+        runFlag = false;
     }
     // ==========================================================================
 
@@ -344,13 +310,14 @@ public final class DeviceControlActivity extends BaseActivity {
 
         StringBuilder msg = new StringBuilder();
         if (show_timings) msg.append("[").append(timeformat.format(new Date())).append("]");
-        if (show_direction) {
+        /* if (show_direction) {
             final String arrow = (outgoing ? " << " : " >> ");
             msg.append(arrow);
-        } else msg.append(" ");
-
+        } else msg.append(" "); */
+        msg.append(" ");
         msg.append(hexMode ? Utils.printHex(message) : message);
-        if (outgoing) msg.append('\n');
+        msg.append('\n');
+        //if (outgoing) msg.append('\n');
         logTextView.append(msg);
 
         final int scrollAmount = logTextView.getLayout().getLineTop(logTextView.getLineCount()) - logTextView.getHeight();
@@ -358,7 +325,6 @@ public final class DeviceControlActivity extends BaseActivity {
             logTextView.scrollTo(0, scrollAmount);
         else logTextView.scrollTo(0, 0);
 
-        if (clean) commandEditText.setText("");
     }
     // =========================================================================
 
@@ -411,6 +377,12 @@ public final class DeviceControlActivity extends BaseActivity {
                         final String readMessage = (String) msg.obj;
                         if (readMessage != null) {
                             activity.appendLog(readMessage, false, false, activity.needClean);
+                            try {
+                                Thread.sleep(50);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            activity.send();
                         }
                         break;
 

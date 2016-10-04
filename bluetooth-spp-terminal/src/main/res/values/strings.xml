@@ -32,7 +32,7 @@
     <string name="none_paired">No paired devices</string>
     <string name="none_found">Not found</string>
     <string name="command_hint">Enter command here</string>
-    <string name="button_send">Send</string>
+    <string name="button_send">Start</string>
 
     <!-- Настройки -->
     <string name="log_settings_category">Command history:</string>
@@ -53,4 +53,5 @@
 
     <string name="need_clean">Clear previous command</string>
     <string name="need_clean_summary">Cleanup command view after sending</string>
+    <string name="button_stop">Stop</string>
 </resources>

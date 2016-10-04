@@ -50,7 +50,7 @@ public class DeviceConnector {
     private final Handler mHandler;
     private final String deviceName;
 
-    private String answerEndingFlag = "\n";
+    private String answerEndingFlag = "\r";
     // ==========================================================================
 
 
