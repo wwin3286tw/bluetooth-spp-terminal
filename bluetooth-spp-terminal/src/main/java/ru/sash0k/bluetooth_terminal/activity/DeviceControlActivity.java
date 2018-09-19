@@ -35,7 +35,7 @@ public final class DeviceControlActivity extends BaseActivity {
     private static final String DEVICE_NAME = "DEVICE_NAME";
     private static final String LOG = "LOG";
 
-    // Подсветка crc
+    // CRC校驗顏色(正確：綠，錯誤：紅)
     private static final String CRC_OK = "#FFFF00";
     private static final String CRC_BAD = "#FF0000";
 
@@ -52,7 +52,7 @@ public final class DeviceControlActivity extends BaseActivity {
     private TextView logTextView;
     private EditText commandEditText;
 
-    // Настройки приложения
+    // /應用程序設定
     private boolean hexMode, checkSum, needClean;
     private boolean show_timings, show_direction;
     private String command_ending;
