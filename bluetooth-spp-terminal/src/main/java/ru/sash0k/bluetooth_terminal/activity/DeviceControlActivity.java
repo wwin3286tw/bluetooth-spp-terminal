@@ -124,7 +124,8 @@ public final class DeviceControlActivity extends BaseActivity {
 
 
     /**
-     * Проверка готовности соединения
+     *檢查連接已準備就緒
+
      */
     private boolean isConnected() {
         return (connector != null) && (connector.getState() == DeviceConnector.STATE_CONNECTED);
@@ -133,7 +134,7 @@ public final class DeviceControlActivity extends BaseActivity {
 
 
     /**
-     * Разорвать соединение
+     * 斷開連接
      */
     private void stopConnection() {
         if (connector != null) {
@@ -146,7 +147,7 @@ public final class DeviceControlActivity extends BaseActivity {
 
 
     /**
-     * Список устройств для подключения
+     *連接設備列表
      */
     private void startDeviceListActivity() {
         stopConnection();
@@ -157,7 +158,7 @@ public final class DeviceControlActivity extends BaseActivity {
 
 
     /**
-     * Обработка аппаратной кнопки "Поиск"
+     * 處理硬件按鈕“搜索”
      *
      * @return
      */
@@ -240,10 +241,10 @@ public final class DeviceControlActivity extends BaseActivity {
         final String checkSum = Utils.getPrefence(this, getString(R.string.pref_checksum_mode));
         this.checkSum = "Modulo 256".equals(checkSum);
 
-        // Окончание строки
+        // 行結束
         this.command_ending = getCommandEnding();
 
-        // Формат отображения лога команд
+        // 顯示命令日誌的格式
         this.show_timings = Utils.getBooleanPrefence(this, getString(R.string.pref_log_timing));
         this.show_direction = Utils.getBooleanPrefence(this, getString(R.string.pref_log_direction));
         this.needClean = Utils.getBooleanPrefence(this, getString(R.string.pref_need_clean));
@@ -252,7 +253,7 @@ public final class DeviceControlActivity extends BaseActivity {
 
 
     /**
-     * Получить из настроек признак окончания команды
+     *從設置中獲取命令的結尾
      */
     private String getCommandEnding() {
         String result = Utils.getPrefence(this, getString(R.string.pref_commands_ending));
@@ -290,7 +291,7 @@ public final class DeviceControlActivity extends BaseActivity {
 
 
     /**
-     * Установка соединения с устройством
+     *建立與設備的連接
      */
     private void setupConnector(BluetoothDevice connectedDevice) {
         stopConnection();
@@ -307,7 +308,7 @@ public final class DeviceControlActivity extends BaseActivity {
 
 
     /**
-     * Отправка команды устройству
+     * 向設備發送命令
      */
     public void sendCommand(View view) {
         if (commandEditText != null) {
@@ -337,10 +338,11 @@ public final class DeviceControlActivity extends BaseActivity {
 
 
     /**
-     * Добавление ответа в лог
+     * 添加日誌的答案
      *
-     * @param message  - текст для отображения
-     * @param outgoing - направление передачи
+     * @param message  - 要顯示的文字
+     * @param outgoing - 傳播方向
+
      */
     void appendLog(String message, boolean hexMode, boolean outgoing, boolean clean) {
 
@@ -351,10 +353,10 @@ public final class DeviceControlActivity extends BaseActivity {
             msg.append(arrow);
         } else msg.append(" ");
 
-        // Убрать символы переноса строки \r\n
+        // 刪除換行符 \r\n
         message = message.replace("\r", "").replace("\n", "");
 
-        // Проверка контрольной суммы ответа
+        // 校驗和校驗和
         String crc = "";
         boolean crcOk = false;
         if (checkSum) {
@@ -365,7 +367,7 @@ public final class DeviceControlActivity extends BaseActivity {
             if (hexMode) crc = Utils.printHex(crc.toUpperCase());
         }
 
-        // Лог в html
+        //登錄html
         msg.append("<b>")
                 .append(hexMode ? Utils.printHex(message) : message)
                 .append(checkSum ? Utils.mark(crc, crcOk ? CRC_OK : CRC_BAD) : "")
@@ -392,7 +394,7 @@ public final class DeviceControlActivity extends BaseActivity {
     // ==========================================================================
 
     /**
-     * Обработчик приёма данных от bluetooth-потока
+     * 用於從藍牙流接收數據的處理器
      */
     private static class BluetoothResponseHandler extends Handler {
         private WeakReference<DeviceControlActivity> mActivity;

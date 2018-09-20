@@ -63,7 +63,7 @@ public class DeviceConnector {
 
 
     /**
-     * Запрос на соединение с устойством
+     * 請求連接到設備
      */
     public synchronized void connect() {
         if (D) Log.d(TAG, "connect to: " + connectedDevice);
@@ -113,9 +113,9 @@ public class DeviceConnector {
 
 
     /**
-     * Установка внутреннего состояния устройства
+     * 設定設備的內部狀態
      *
-     * @param state - состояние
+     * @param state - 狀態
      */
     private synchronized void setState(int state) {
         if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
@@ -126,7 +126,7 @@ public class DeviceConnector {
 
 
     /**
-     * Получение состояния устройства
+     * 獲取設備的狀態
      */
     public synchronized int getState() {
         return mState;
@@ -203,7 +203,7 @@ public class DeviceConnector {
 
 
     /**
-     * Класс потока для соединения с BT-устройством
+     * 用於連接BT設備的Stream類
      */
     // ==========================================================================
     private class ConnectThread extends Thread {
@@ -219,10 +219,10 @@ public class DeviceConnector {
             mmSocket = BluetoothUtils.createRfcommSocket(mmDevice);
         }
         // ==========================================================================
-
         /**
-         * Основной рабочий метод для соединения с устройством.
-         * При успешном соединении передаёт управление другому потоку
+         *
+         *連接設備的主要工作方法。
+         *如果連接成功，則將控制轉移到另一個線程
          */
         public void run() {
             if (D) Log.d(TAG, "ConnectThread run");
@@ -313,8 +313,8 @@ public class DeviceConnector {
         }
         // ==========================================================================
 
-        /**
-         * Основной рабочий метод - ждёт входящих команд от потока
+     /*
+         * 主要工作方法是等待來自stream的傳入命令
          */
         public void run() {
             if (D) Log.i(TAG, "ConnectedThread run");
@@ -323,12 +323,13 @@ public class DeviceConnector {
             StringBuilder readMessage = new StringBuilder();
             while (true) {
                 try {
-                    // считываю входящие данные из потока и собираю в строку ответа
+                    //
+                    //我從流中讀取傳入的數據並在響應行中收集它
                     bytes = mmInStream.read(buffer);
                     String readed = new String(buffer, 0, bytes);
                     readMessage.append(readed);
 
-                    // маркер конца команды - вернуть ответ в главный поток
+                    //命令標記的結尾 - 將響應返回給主線程
                     if (readed.contains("\n")) {
                         mHandler.obtainMessage(DeviceControlActivity.MESSAGE_READ, bytes, -1, readMessage.toString()).sendToTarget();
                         readMessage.setLength(0);
@@ -381,7 +382,7 @@ public class DeviceConnector {
 
 
         /**
-         * Отмена - закрытие сокета
+         * 取消 - 關閉套接字
          */
         public void cancel() {
             try {

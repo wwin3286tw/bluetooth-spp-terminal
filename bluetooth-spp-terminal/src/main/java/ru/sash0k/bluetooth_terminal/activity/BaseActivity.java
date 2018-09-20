@@ -10,7 +10,7 @@ import ru.sash0k.bluetooth_terminal.R;
 import ru.sash0k.bluetooth_terminal.Utils;
 
 /**
- * Общий базовый класс. Инициализация BT-адаптера
+ * 一般基礎類。 BT適配器初始化
  * Created by sash0k on 09.12.13.
  */
 public abstract class BaseActivity extends Activity {
@@ -90,9 +90,9 @@ public abstract class BaseActivity extends Activity {
 
 
     /**
-     * Проверка адаптера
+     * 適配器檢查
      *
-     * @return - true, если готов к работе
+     * @return - true, 如果準備好工作
      */
     boolean isAdapterReady() {
         return (btAdapter != null) && (btAdapter.isEnabled());
@@ -101,10 +101,10 @@ public abstract class BaseActivity extends Activity {
 
 
     /**
-     * Показывает диалоговое окно с предупреждением.
-     * TODO: При переконфигурациях будет теряться
+     *　顯示警告對話框。
+           * TODO：處理重設(reset)警告
      *
-     * @param message - сообщение
+     * @param message - 訊息
      */
     void showAlertDialog(String message) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
