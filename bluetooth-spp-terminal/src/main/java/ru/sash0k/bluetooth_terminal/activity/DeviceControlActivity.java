@@ -2,10 +2,12 @@ package ru.sash0k.bluetooth_terminal.activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -13,6 +15,8 @@ import android.text.Html;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,9 +25,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.stream.Stream;
 
 import ru.sash0k.bluetooth_terminal.DeviceData;
 import ru.sash0k.bluetooth_terminal.R;
@@ -306,6 +313,26 @@ public final class DeviceControlActivity extends BaseActivity {
     }
     // ==========================================================================
 
+//
+//  decode base64 string to byte
+//
+public byte[] Base64ToByte(String Base64String){
+    return Base64.decode(Base64String, Base64.DEFAULT);
+}
+    public void SaveFile(File filename, byte[] data)
+    {
+        try
+        {
+
+            FileOutputStream output = new FileOutputStream(filename);
+            output.write(data);
+            output.close();
+        }
+        catch (Exception e)
+        {
+            Log.d("dex","Save.SaveFile(): Failed to serialize object to a file " + filename + " (Reason: " + e.getMessage().toString() + ")");
+        }
+    }
 
     /**
      * 向設備發送命令
@@ -355,7 +382,7 @@ public final class DeviceControlActivity extends BaseActivity {
 
         // 刪除換行符 \r\n
         message = message.replace("\r", "").replace("\n", "");
-
+        Log.d("data",message);
         // 校驗和校驗和
         String crc = "";
         boolean crcOk = false;
@@ -407,7 +434,8 @@ public final class DeviceControlActivity extends BaseActivity {
             mActivity.clear();
             mActivity = new WeakReference<DeviceControlActivity>(target);
         }
-
+       public boolean binary_mode=false;
+public int count=0;
         @Override
         public void handleMessage(Message msg) {
             DeviceControlActivity activity = mActivity.get();
@@ -432,9 +460,27 @@ public final class DeviceControlActivity extends BaseActivity {
                         break;
 
                     case MESSAGE_READ:
-                        final String readMessage = (String) msg.obj;
+                        String readMessage = (String) msg.obj;
                         if (readMessage != null) {
-                            activity.appendLog(readMessage, false, false, activity.needClean);
+                            String XreadMessage=readMessage.replaceAll("[\n\r]", "");
+                            if (XreadMessage.equals("END_PNG")){
+                                binary_mode=false;
+                            }
+                            if (!binary_mode) {
+                                activity.appendLog(readMessage, false, false, activity.needClean);
+                            }
+
+                            if (XreadMessage.equals("BEG_PNG")){
+                                binary_mode=true;
+                                break;
+                            }
+
+
+                            if  (binary_mode){
+                                File filename = new File(Environment.getExternalStorageDirectory(), "sample.png");
+                                activity.SaveFile(filename,activity.Base64ToByte(readMessage));
+                                Log.d("dx",filename.getAbsolutePath());
+                            }
                         }
                         break;
 
